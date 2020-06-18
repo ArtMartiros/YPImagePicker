@@ -16,7 +16,8 @@ class YPCropView: UIView {
     let cropArea = UIView()
     let bottomCurtain = UIView()
     let toolbar = UIToolbar()
-
+    let customMaskView = UIImageView()
+    
     convenience init(image: UIImage, ratio: Double) {
         self.init(frame: .zero)
         setupViewHierarchy()
@@ -30,6 +31,7 @@ class YPCropView: UIView {
             imageView,
             topCurtain,
             cropArea,
+            customMaskView,
             bottomCurtain,
             toolbar
         )
@@ -53,7 +55,10 @@ class YPCropView: UIView {
         let r: CGFloat = CGFloat(1.0 / ratio)
         cropArea.Height == cropArea.Width * r
         cropArea.centerVertically()
-        
+        customMaskView.Width == 212
+        customMaskView.Height == customMaskView.Width * 1.48
+        customMaskView.centerHorizontally()
+        customMaskView.centerVertically()
         // Fit image differently depnding on its ratio.
         let imageRatio: Double = Double(image.size.width / image.size.height)
         if ratio > imageRatio {
@@ -81,6 +86,10 @@ class YPCropView: UIView {
         topCurtain.style(curtainStyle)
         cropArea.style { v in
             v.backgroundColor = .clear
+            v.isUserInteractionEnabled = false
+        }
+        customMaskView.style { v in
+            v.image = YPIcons().customMaskImage
             v.isUserInteractionEnabled = false
         }
         bottomCurtain.style(curtainStyle)
