@@ -14,7 +14,7 @@ public enum YPCropType {
 }
 
 class YPCropVC: UIViewController {
-    
+    fileprivate var radians: Double = 0
     public var didFinishCropping: ((UIImage) -> Void)?
     
     override var prefersStatusBarHidden: Bool { return YPConfig.hidesStatusBar }
@@ -22,6 +22,7 @@ class YPCropVC: UIViewController {
     private let originalImage: UIImage
     private let pinchGR = UIPinchGestureRecognizer()
     private let panGR = UIPanGestureRecognizer()
+    private let rotateGR = UIRotationGestureRecognizer()
     
     private let v: YPCropView
     override func loadView() { view = v }
@@ -71,6 +72,11 @@ class YPCropVC: UIViewController {
         panGR.addTarget(self, action: #selector(pan(_:)))
         panGR.delegate = self
         v.imageView.addGestureRecognizer(panGR)
+        
+        // Rotate Gesture
+        rotateGR.addTarget(self, action: #selector(handleRotation(_:)))
+        rotateGR.delegate = self
+        v.imageView.addGestureRecognizer(rotateGR)
     }
     
     @objc
@@ -84,20 +90,24 @@ class YPCropVC: UIViewController {
             return
         }
         
+        let rotatedImage = image.rotate(radians: Float(radians))
+        guard let cgImage = rotatedImage?.toCIImage()?.toCGImage() else { return }
+        
         let xCrop = v.cropArea.frame.minX - v.imageView.frame.minX
         let yCrop = v.cropArea.frame.minY - v.imageView.frame.minY
         let widthCrop = v.cropArea.frame.width
         let heightCrop = v.cropArea.frame.height
-        let scaleRatio = image.size.width / v.imageView.frame.width
+        let scaleRatio = CGFloat(cgImage.width) / v.imageView.frame.width
+
         let scaledCropRect = CGRect(x: xCrop * scaleRatio,
-                                    y: yCrop * scaleRatio,
-                                    width: widthCrop * scaleRatio,
-                                    height: heightCrop * scaleRatio)
-        if let cgImage = image.toCIImage()?.toCGImage(),
-            let imageRef = cgImage.cropping(to: scaledCropRect) {
+                                            y: yCrop * scaleRatio,
+                                            width: widthCrop * scaleRatio,
+                                            height: heightCrop * scaleRatio)
+        if let imageRef = cgImage.cropping(to: scaledCropRect) {
             let croppedImage = UIImage(cgImage: imageRef)
             didFinishCropping?(croppedImage)
         }
+        
     }
 }
 
@@ -146,12 +156,12 @@ extension YPCropVC: UIGestureRecognizerDelegate {
         }
         
         // Animate coming back to the allowed bounds with a haptic feedback.
-        if wentOutOfAllowedBounds {
-            generateHapticFeedback()
-            UIView.animate(withDuration: 0.3, animations: {
-                self.v.imageView.transform = transform
-            })
-        }
+//        if wentOutOfAllowedBounds {
+//            generateHapticFeedback()
+//            UIView.animate(withDuration: 0.3, animations: {
+//                self.v.imageView.transform = transform
+//            })
+//        }
     }
     
     func generateHapticFeedback() {
@@ -176,6 +186,18 @@ extension YPCropVC: UIGestureRecognizerDelegate {
         
         if sender.state == .ended {
             keepImageIntoCropArea()
+        }
+    }
+    
+
+    
+    @objc
+    func handleRotation(_ recognizer: UIRotationGestureRecognizer) {
+        if let recognizerView = recognizer.view {
+            recognizerView.transform = recognizerView.transform.rotated(by: recognizer.rotation)
+            recognizer.rotation = 0
+
+            radians = atan2(Double(recognizerView.transform.b), Double(recognizerView.transform.a))
         }
     }
     
@@ -205,16 +227,40 @@ extension YPCropVC: UIGestureRecognizerDelegate {
         }
         
         // Animate back to allowed bounds
-        if imageRect != correctedFrame {
-            UIView.animate(withDuration: 0.3, animations: {
-                self.v.imageView.frame = correctedFrame
-            })
-        }
+//        if imageRect != correctedFrame {
+//            UIView.animate(withDuration: 0.3, animations: {
+//                self.v.imageView.frame = correctedFrame
+//            })
+//        }
     }
     
     /// Allow both Pinching and Panning at the same time.
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
+    }
+}
+
+extension UIImage {
+    func rotate(radians: Float) -> UIImage? {
+        var newSize = CGRect(origin: CGPoint.zero, size: self.size).applying(CGAffineTransform(rotationAngle: CGFloat(radians))).size
+        // Trim off the extremely small float value to prevent core graphics from rounding it up
+        newSize.width = floor(newSize.width)
+        newSize.height = floor(newSize.height)
+
+        UIGraphicsBeginImageContextWithOptions(newSize, true, self.scale)
+        let context = UIGraphicsGetCurrentContext()!
+        context.setFillColor(UIColor.black.cgColor)
+        // Move origin to middle
+        context.translateBy(x: newSize.width/2, y: newSize.height/2)
+        // Rotate around middle
+        context.rotate(by: CGFloat(radians))
+        // Draw the image at its center
+        self.draw(in: CGRect(x: -self.size.width/2, y: -self.size.height/2, width: self.size.width, height: self.size.height))
+
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage
     }
 }

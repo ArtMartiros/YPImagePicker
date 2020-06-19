@@ -10,11 +10,19 @@ import UIKit
 import Stevia
 
 class YPCropView: UIView {
-    
+    let backView = UIView()
     let imageView = UIImageView()
-    let topCurtain = UIView()
+    lazy var topCurtain: UIVisualEffectView = {
+        let effect = UIBlurEffect(style: .light)
+        let blurEffectView = UIVisualEffectView(effect: effect)
+        return blurEffectView
+    }()
     let cropArea = UIView()
-    let bottomCurtain = UIView()
+    let bottomCurtain: UIVisualEffectView = {
+        let effect = UIBlurEffect(style: .light)
+        let blurEffectView = UIVisualEffectView(effect: effect)
+        return blurEffectView
+    }()
     let toolbar = UIToolbar()
     let customMaskView = UIImageView()
     
@@ -28,6 +36,7 @@ class YPCropView: UIView {
     
     private func setupViewHierarchy() {
         sv(
+            backView,
             imageView,
             topCurtain,
             cropArea,
@@ -55,6 +64,9 @@ class YPCropView: UIView {
         let r: CGFloat = CGFloat(1.0 / ratio)
         cropArea.Height == cropArea.Width * r
         cropArea.centerVertically()
+        backView.Width == cropArea.Width
+        backView.Height == cropArea.Height
+        backView.centerVertically()
         customMaskView.Width == 212
         customMaskView.Height == customMaskView.Width * 1.48
         customMaskView.centerHorizontally()
@@ -79,6 +91,12 @@ class YPCropView: UIView {
     private func applyStyle() {
         backgroundColor = .ypSystemBackground
         clipsToBounds = true
+        backView.style { i in
+            i.backgroundColor = .black
+            i.isUserInteractionEnabled = false
+            i.isMultipleTouchEnabled = false
+        }
+        
         imageView.style { i in
             i.isUserInteractionEnabled = true
             i.isMultipleTouchEnabled = true
@@ -100,7 +118,7 @@ class YPCropView: UIView {
     }
     
     func curtainStyle(v: UIView) {
-        v.backgroundColor = UIColor.ypSystemBackground.withAlphaComponent(0.7)
+        //        v.backgroundColor = UIColor.ypSystemBackground.withAlphaComponent(0.7)
         v.isUserInteractionEnabled = false
     }
 }
