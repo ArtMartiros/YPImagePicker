@@ -90,23 +90,28 @@ class YPCropVC: UIViewController {
             return
         }
         
-        let rotatedImage = image.rotate(radians: Float(radians))
-        guard let cgImage = rotatedImage?.toCIImage()?.toCGImage() else { return }
+        guard let rotatedImage = image.rotate(radians: Float(radians)) else { return }
+//        guard let cgImage = rotatedImage?.toCIImage()?.toCGImage() else { return }
         
         let xCrop = v.cropArea.frame.minX - v.imageView.frame.minX
         let yCrop = v.cropArea.frame.minY - v.imageView.frame.minY
-        let widthCrop = v.cropArea.frame.width
-        let heightCrop = v.cropArea.frame.height
-        let scaleRatio = CGFloat(cgImage.width) / v.imageView.frame.width
-
-        let scaledCropRect = CGRect(x: xCrop * scaleRatio,
-                                            y: yCrop * scaleRatio,
-                                            width: widthCrop * scaleRatio,
-                                            height: heightCrop * scaleRatio)
-        if let imageRef = cgImage.cropping(to: scaledCropRect) {
-            let croppedImage = UIImage(cgImage: imageRef)
+//        let widthCrop = v.cropArea.frame.width
+//        let heightCrop = v.cropArea.frame.height
+        //нужен просто для того чтобы перевести в координаты image
+        let imageScaleRatio = rotatedImage.size.width / v.imageView.frame.width
+        let scaleRatio = v.imageView.frame.width / v.cropArea.frame.width
+        
+        guard let croppedImage = rotatedImage.crop(x: -xCrop * imageScaleRatio,
+                                                   y: -yCrop * imageScaleRatio, scale: scaleRatio) else { return }
+//        guard let cgImagenewImage = croppedImage?.toCIImage()?.toCGImage() else { return }
+//        let scaledCropRect = CGRect(x: xCrop * imageScaleRatio,
+//                                            y: yCrop * imageScaleRatio,
+//                                            width: widthCrop * imageScaleRatio,
+//                                            height: heightCrop * imageScaleRatio)
+//        if let imageRef = cgImage.cropping(to: scaledCropRect) {
+//            let croppedImage = UIImage(cgImage: cgImagenewImage)
             didFinishCropping?(croppedImage)
-        }
+//        }
         
     }
 }
@@ -263,4 +268,24 @@ extension UIImage {
 
         return newImage
     }
+    
+        func crop(x: CGFloat, y: CGFloat, scale: CGFloat) -> UIImage? {
+            let frame = CGRect(origin: CGPoint.zero, size: self.size)
+            UIGraphicsBeginImageContextWithOptions(frame.size, true, self.scale)
+            let context = UIGraphicsGetCurrentContext()!
+            context.setFillColor(UIColor.black.cgColor)
+            // Move origin to middle
+            
+            context.scaleBy(x: scale, y: scale)
+            context.translateBy(x: x, y: y)
+
+            self.draw(in: frame)
+    //        self.draw(in: CGRect(x: -self.size.width/2, y: -self.size.height/2, width: self.size.width, height: self.size.height))
+
+            let newImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+
+            return newImage
+        }
 }
+
