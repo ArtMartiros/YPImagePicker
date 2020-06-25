@@ -67,112 +67,19 @@ class ExampleViewController: UIViewController {
         
         var config = YPImagePickerConfiguration()
 
-        /* Uncomment and play around with the configuration 👨‍🔬 🚀 */
-
-        /* Set this to true if you want to force the  library output to be a squared image. Defaults to false */
-//         config.library.onlySquare = true
-
-        /* Set this to true if you want to force the camera output to be a squared image. Defaults to true */
-        // config.onlySquareImagesFromCamera = false
-
-        /* Ex: cappedTo:1024 will make sure images from the library or the camera will be
-           resized to fit in a 1024x1024 box. Defaults to original image size. */
-        // config.targetImageSize = .cappedTo(size: 1024)
-
-        /* Choose what media types are available in the library. Defaults to `.photo` */
-        config.library.mediaType = .photoAndVideo
-
-        /* Enables selecting the front camera by default, useful for avatars. Defaults to false */
-        // config.usesFrontCamera = true
-
-        /* Adds a Filter step in the photo taking process. Defaults to true */
-        // config.showsFilters = false
-
-        /* Manage filters by yourself */
-//        config.filters = [YPFilter(name: "Mono", coreImageFilterName: "CIPhotoEffectMono"),
-//                          YPFilter(name: "Normal", coreImageFilterName: "")]
-//        config.filters.remove(at: 1)
-//        config.filters.insert(YPFilter(name: "Blur", coreImageFilterName: "CIBoxBlur"), at: 1)
-
-        /* Enables you to opt out from saving new (or old but filtered) images to the
-           user's photo library. Defaults to true. */
+        config.library.mediaType = .photo
         config.shouldSaveNewPicturesToAlbum = false
-
-        /* Choose the videoCompression. Defaults to AVAssetExportPresetHighestQuality */
-        config.video.compression = AVAssetExportPresetMediumQuality
-        
-        /* Defines the name of the album when saving pictures in the user's photo library.
-           In general that would be your App name. Defaults to "DefaultYPImagePickerAlbumName" */
-        // config.albumName = "ThisIsMyAlbum"
-
-        /* Defines which screen is shown at launch. Video mode will only work if `showsVideo = true`.
-           Default value is `.photo` */
+        config.onlySquareImagesFromCamera = false
+        config.usesFrontCamera = true
+        config.showsPhotoFilters = false
         config.startOnScreen = .library
-
-        /* Defines which screens are shown at launch, and their order.
-           Default value is `[.library, .photo]` */
-        config.screens = [.library, .photo, .video]
-        
-        /* Can forbid the items with very big height with this property */
-//        config.library.minWidthForItem = UIScreen.main.bounds.width * 0.8
-
-        /* Defines the time limit for recording videos.
-           Default is 30 seconds. */
-        // config.video.recordingTimeLimit = 5.0
-
-        /* Defines the time limit for videos from the library.
-           Defaults to 60 seconds. */
-        config.video.libraryTimeLimit = 500.0
-
-        /* Adds a Crop step in the photo taking process, after filters. Defaults to .none */
-        config.showsCrop = .rectangle(ratio: (16/9))
-
-        /* Defines the overlay view for the camera. Defaults to UIView(). */
-        // let overlayView = UIView()
-        // overlayView.backgroundColor = .red
-        // overlayView.alpha = 0.3
-        // config.overlayView = overlayView
-
-        /* Customize wordings */
-        config.wordings.libraryTitle = "Gallery"
-
-        /* Defines if the status bar should be hidden when showing the picker. Default is true */
+        config.screens = [.library, .photo]
+        config.showsCrop = .rectangle(ratio: 1)
         config.hidesStatusBar = false
-
-        /* Defines if the bottom bar should be hidden when showing the picker. Default is false */
         config.hidesBottomBar = false
-        
         config.maxCameraZoomFactor = 2.0
-
-        config.library.maxNumberOfItems = 5
+        config.library.maxNumberOfItems = 1
         config.gallery.hidesRemoveButton = false
-        
-        /* Disable scroll to change between mode */
-        // config.isScrollToChangeModesEnabled = false
-//        config.library.minNumberOfItems = 2
-        
-        /* Skip selection gallery after multiple selections */
-        // config.library.skipSelectionsGallery = true
-
-        /* Here we use a per picker configuration. Configuration is always shared.
-           That means than when you create one picker with configuration, than you can create other picker with just
-           let picker = YPImagePicker() and the configuration will be the same as the first picker. */
-        
-        
-        /* Only show library pictures from the last 3 days */
-        //let threDaysTimeInterval: TimeInterval = 3 * 60 * 60 * 24
-        //let fromDate = Date().addingTimeInterval(-threDaysTimeInterval)
-        //let toDate = Date()
-        //let options = PHFetchOptions()
-        //options.predicate = NSPredicate(format: "creationDate > %@ && creationDate < %@", fromDate as CVarArg, toDate as CVarArg)
-        //
-        ////Just a way to set order
-        //let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
-        //options.sortDescriptors = [sortDescriptor]
-        //
-        //config.library.options = options
-
-        config.library.preselectedItems = selectedItems
         
         let picker = YPImagePicker(configuration: config)
 
