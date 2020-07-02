@@ -36,9 +36,6 @@ class YPCropVC: UIViewController {
         originalImage = image
         super.init(nibName: nil, bundle: nil)
         self.title = YPConfig.wordings.crop
-        
-        self.center.x = v.imageView.frame.size.width / 2
-        self.center.y = v.imageView.frame.size.height / 2
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -264,20 +261,17 @@ extension YPCropVC: UIGestureRecognizerDelegate {
     func handlePress(_ sender: UILongPressGestureRecognizer) {
         if sender.state == .began {
             let loc = sender.location(in: v.imageView)
-//            let cx = (v.imageView.image?.size.width)! / 2
-//            let cy = (v.imageView.image?.size.height)! / 2
-//            let cx = v.imageView.frame.size.width / 2
-//            let cy = v.imageView.frame.size.height / 2
-            let cx = CGFloat(187.5)
-            let cy = CGFloat(187.5)
             
-            let anchor = CGPoint(x: loc.x - cx, y: loc.y - cy)
+            if center == CGPoint() {
+                center.x = v.imageView.frame.size.width / 2
+                center.y = v.imageView.frame.size.height / 2
+            }
+            
+            anchor = CGPoint(x: loc.x - center.x, y: loc.y - center.y)
             print("--")
             print("press", loc)
-            print("im center", cx, cy)
+            print("im center", center)
             print("anchor", anchor)
-            
-            self.anchor = anchor
         }
     }
     
