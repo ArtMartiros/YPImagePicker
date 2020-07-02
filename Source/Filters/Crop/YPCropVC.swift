@@ -138,6 +138,10 @@ extension YPCropVC: UIGestureRecognizerDelegate {
         // TODO: Zoom where the fingers are (more user friendly)
         switch sender.state {
         case .began, .changed:
+            // Formula:
+            // P' = s * P + (1 - s) * A
+            // where P' - new point, P - old point, A - anchor point, s - scale
+            
             var transform = v.imageView.transform
             // Apply zoom level.
             transform = transform.scaledBy(x: sender.scale,
@@ -212,15 +216,32 @@ extension YPCropVC: UIGestureRecognizerDelegate {
         }
     }
     
+    
+    func rotate_point(point: CGPoint, angle: CGFloat) -> CGPoint {
+        // rotate a point given angle in radians
+        let x = cos(angle) * point.x - sin(angle) * point.y
+        let y = sin(angle) * point.x + cos(angle) * point.y
+        return CGPoint(x: x, y: y)
+    }
 
     
     @objc
     func handleRotation(_ recognizer: UIRotationGestureRecognizer) {
         if let recognizerView = recognizer.view {
+            // Formula:
+            // P' = R * P + (A - R * A)
+            // where P' - new point, P - old point, R - rotation matrix, A - anchor point
+            
             recognizerView.transform = recognizerView.transform.rotated(by: recognizer.rotation)
-            recognizer.rotation = 0
+            
+            let rot_anchor = rotate_point(point: anchor, angle: recognizer.rotation)
+            let tx = anchor.x - rot_anchor.x
+            let ty = anchor.y - rot_anchor.y
+            recognizerView.transform = recognizerView.transform.translatedBy(x: tx, y: ty)
 
             radians = atan2(Double(recognizerView.transform.b), Double(recognizerView.transform.a))
+            
+            recognizer.rotation = 0
         }
     }
     
@@ -262,16 +283,13 @@ extension YPCropVC: UIGestureRecognizerDelegate {
         if sender.state == .began {
             let loc = sender.location(in: v.imageView)
             
+            // TODO: fixme
             if center == CGPoint() {
                 center.x = v.imageView.frame.size.width / 2
                 center.y = v.imageView.frame.size.height / 2
             }
             
             anchor = CGPoint(x: loc.x - center.x, y: loc.y - center.y)
-            print("--")
-            print("press", loc)
-            print("im center", center)
-            print("anchor", anchor)
         }
     }
     
