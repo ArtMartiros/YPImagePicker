@@ -283,11 +283,8 @@ extension YPCropVC: UIGestureRecognizerDelegate {
         if sender.state == .began {
             let loc = sender.location(in: v.imageView)
             
-            // TODO: fixme
-            if center == CGPoint() {
-                center.x = v.imageView.frame.size.width / 2
-                center.y = v.imageView.frame.size.height / 2
-            }
+            center.x = v.cropArea.frame.size.width / 2
+            center.y = v.cropArea.frame.size.height / 2
             
             anchor = CGPoint(x: loc.x - center.x, y: loc.y - center.y)
         }
