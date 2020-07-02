@@ -29,12 +29,16 @@ class YPCropVC: UIViewController {
     override func loadView() { view = v }
     
     private var anchor = CGPoint()
+    private var center = CGPoint()
     
     required init(image: UIImage, ratio: Double) {
         v = YPCropView(image: image, ratio: ratio)
         originalImage = image
         super.init(nibName: nil, bundle: nil)
         self.title = YPConfig.wordings.crop
+        
+        self.center.x = v.imageView.frame.size.width / 2
+        self.center.y = v.imageView.frame.size.height / 2
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -83,7 +87,7 @@ class YPCropVC: UIViewController {
         
         pressGR.addTarget(self, action: #selector(self.handlePress(_:)))
         pressGR.numberOfTouchesRequired = 2
-        pressGR.minimumPressDuration = 0.1
+        pressGR.minimumPressDuration = 0.01
         pressGR.delegate = self
         v.imageView.addGestureRecognizer(pressGR)
     }
