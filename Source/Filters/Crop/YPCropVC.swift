@@ -23,9 +23,13 @@ class YPCropVC: UIViewController {
     private let pinchGR = UIPinchGestureRecognizer()
     private let panGR = UIPanGestureRecognizer()
     private let rotateGR = UIRotationGestureRecognizer()
+    private let pressGR = UILongPressGestureRecognizer()
     
     private let v: YPCropView
     override func loadView() { view = v }
+    
+    private var anchor = CGPoint()
+    private var center = CGPoint()
     
     required init(image: UIImage, ratio: Double) {
         v = YPCropView(image: image, ratio: ratio)
@@ -77,6 +81,12 @@ class YPCropVC: UIViewController {
         rotateGR.addTarget(self, action: #selector(handleRotation(_:)))
         rotateGR.delegate = self
         v.imageView.addGestureRecognizer(rotateGR)
+        
+        pressGR.addTarget(self, action: #selector(self.handlePress(_:)))
+        pressGR.numberOfTouchesRequired = 2
+        pressGR.minimumPressDuration = 0.01
+        pressGR.delegate = self
+        v.imageView.addGestureRecognizer(pressGR)
     }
     
     @objc
@@ -128,10 +138,19 @@ extension YPCropVC: UIGestureRecognizerDelegate {
         // TODO: Zoom where the fingers are (more user friendly)
         switch sender.state {
         case .began, .changed:
+            // Formula:
+            // P' = s * P + (1 - s) * A
+            // where P' - new point, P - old point, A - anchor point, s - scale
+            
             var transform = v.imageView.transform
             // Apply zoom level.
             transform = transform.scaledBy(x: sender.scale,
                                             y: sender.scale)
+            
+            let tx = (1 - sender.scale) * self.anchor.x
+            let ty = (1 - sender.scale) * self.anchor.y
+            transform = transform.translatedBy(x: tx, y: ty)
+            
             v.imageView.transform = transform
         case .ended:
             pinchGestureEnded()
@@ -197,15 +216,32 @@ extension YPCropVC: UIGestureRecognizerDelegate {
         }
     }
     
+    
+    func rotate_point(point: CGPoint, angle: CGFloat) -> CGPoint {
+        // rotate a point given angle in radians
+        let x = cos(angle) * point.x - sin(angle) * point.y
+        let y = sin(angle) * point.x + cos(angle) * point.y
+        return CGPoint(x: x, y: y)
+    }
 
     
     @objc
     func handleRotation(_ recognizer: UIRotationGestureRecognizer) {
         if let recognizerView = recognizer.view {
+            // Formula:
+            // P' = R * P + (A - R * A)
+            // where P' - new point, P - old point, R - rotation matrix, A - anchor point
+            
             recognizerView.transform = recognizerView.transform.rotated(by: recognizer.rotation)
-            recognizer.rotation = 0
+            
+            let rot_anchor = rotate_point(point: anchor, angle: recognizer.rotation)
+            let tx = anchor.x - rot_anchor.x
+            let ty = anchor.y - rot_anchor.y
+            recognizerView.transform = recognizerView.transform.translatedBy(x: tx, y: ty)
 
             radians = atan2(Double(recognizerView.transform.b), Double(recognizerView.transform.a))
+            
+            recognizer.rotation = 0
         }
     }
     
@@ -240,6 +276,18 @@ extension YPCropVC: UIGestureRecognizerDelegate {
 //                self.v.imageView.frame = correctedFrame
 //            })
 //        }
+    }
+    
+    @objc
+    func handlePress(_ sender: UILongPressGestureRecognizer) {
+        if sender.state == .began {
+            let loc = sender.location(in: v.imageView)
+            
+            center.x = v.cropArea.frame.size.width / 2
+            center.y = v.cropArea.frame.size.height / 2
+            
+            anchor = CGPoint(x: loc.x - center.x, y: loc.y - center.y)
+        }
     }
     
     /// Allow both Pinching and Panning at the same time.

@@ -416,7 +416,8 @@ public class YPLibraryVC: UIViewController, YPPermissionCheckable {
                                    callback: @escaping (_ photo: UIImage, _ exif: [String : Any]) -> Void) {
         delegate?.libraryViewDidTapNext()
         let cropRect = withCropRect ?? DispatchQueue.main.sync { v.currentCropRect() }
-        let ts = targetSize(for: asset, cropRect: cropRect)
+        //Здесь определяется размер кропа 1 1 это полную картинку берет
+        let ts = targetSize(for: asset, cropRect: CGRect(x: 0, y: 0, width: 1, height: 1) )
         mediaManager.imageManager?.fetchImage(for: asset, cropRect: cropRect, targetSize: ts, callback: callback)
     }
     
