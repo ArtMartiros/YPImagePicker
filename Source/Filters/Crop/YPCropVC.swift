@@ -23,9 +23,12 @@ class YPCropVC: UIViewController {
     private let pinchGR = UIPinchGestureRecognizer()
     private let panGR = UIPanGestureRecognizer()
     private let rotateGR = UIRotationGestureRecognizer()
+    private let pressGR = UILongPressGestureRecognizer()
     
     private let v: YPCropView
     override func loadView() { view = v }
+    
+    private var anchor = CGPoint()
     
     required init(image: UIImage, ratio: Double) {
         v = YPCropView(image: image, ratio: ratio)
@@ -77,6 +80,12 @@ class YPCropVC: UIViewController {
         rotateGR.addTarget(self, action: #selector(handleRotation(_:)))
         rotateGR.delegate = self
         v.imageView.addGestureRecognizer(rotateGR)
+        
+        pressGR.addTarget(self, action: #selector(self.handlePress(_:)))
+        pressGR.numberOfTouchesRequired = 2
+        pressGR.minimumPressDuration = 0.1
+        pressGR.delegate = self
+        v.imageView.addGestureRecognizer(pressGR)
     }
     
     @objc
@@ -132,6 +141,11 @@ extension YPCropVC: UIGestureRecognizerDelegate {
             // Apply zoom level.
             transform = transform.scaledBy(x: sender.scale,
                                             y: sender.scale)
+            
+            let tx = (1 - sender.scale) * self.anchor.x
+            let ty = (1 - sender.scale) * self.anchor.y
+            transform = transform.translatedBy(x: tx, y: ty)
+            
             v.imageView.transform = transform
         case .ended:
             pinchGestureEnded()
@@ -240,6 +254,27 @@ extension YPCropVC: UIGestureRecognizerDelegate {
 //                self.v.imageView.frame = correctedFrame
 //            })
 //        }
+    }
+    
+    @objc
+    func handlePress(_ sender: UILongPressGestureRecognizer) {
+        if sender.state == .began {
+            let loc = sender.location(in: v.imageView)
+//            let cx = (v.imageView.image?.size.width)! / 2
+//            let cy = (v.imageView.image?.size.height)! / 2
+//            let cx = v.imageView.frame.size.width / 2
+//            let cy = v.imageView.frame.size.height / 2
+            let cx = CGFloat(187.5)
+            let cy = CGFloat(187.5)
+            
+            let anchor = CGPoint(x: loc.x - cx, y: loc.y - cy)
+            print("--")
+            print("press", loc)
+            print("im center", cx, cy)
+            print("anchor", anchor)
+            
+            self.anchor = anchor
+        }
     }
     
     /// Allow both Pinching and Panning at the same time.
