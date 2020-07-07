@@ -27,5 +27,5 @@ public struct YPIcons {
     public var captureVideoOnImage: UIImage = imageFromBundle("yp_iconVideoCaptureRecording")
     public var playImage: UIImage = imageFromBundle("yp_play")
     public var removeImage: UIImage = imageFromBundle("yp_remove")
-    public var customMaskImage: UIImage = imageFromBundle("picFacePlace")
+    public var customMaskImage: UIImage = imageFromBundle("picMaskTemplate")
 }

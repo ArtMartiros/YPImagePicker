@@ -68,7 +68,7 @@ class YPCropView: UIView {
         backView.Height == cropArea.Height
         backView.centerVertically()
         customMaskView.Width == 212
-        customMaskView.Height == customMaskView.Width * 1.48
+        customMaskView.Height == customMaskView.Width * 1.385
         customMaskView.centerHorizontally()
         customMaskView.centerVertically()
         // Fit image differently depnding on its ratio.

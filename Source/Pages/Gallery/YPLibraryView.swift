@@ -22,22 +22,15 @@ final class YPLibraryView: UIView {
     let maxNumberWarningView = UIView()
     let maxNumberWarningLabel = UILabel()
     let progressView = UIProgressView()
-    let line = UIView()
     var shouldShowLoader = false
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
-        sv(
-            line
-        )
-        
+    
         layout(
-            assetViewContainer!,
-            |line| ~ 1
+            assetViewContainer!
         )
         
-        line.backgroundColor = .ypSystemBackground
         
         setupMaxNumberOfItemsView()
         setupProgressBarView()
@@ -75,8 +68,6 @@ final class YPLibraryView: UIView {
         )
         
         progressView.height(5)
-        progressView.Top == line.Top
-        progressView.Width == line.Width
         progressView.progressViewStyle = .bar
         progressView.trackTintColor = YPConfig.colors.progressBarTrackColor
         progressView.progressTintColor = YPConfig.colors.progressBarCompletedColor ?? YPConfig.colors.tintColor
