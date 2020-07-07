@@ -136,7 +136,7 @@ extension YPLibraryView {
         let normalizedY = min(1, cropView.contentOffset.y &/ cropView.contentSize.height)
         let normalizedWidth = min(1, cropView.frame.width / cropView.contentSize.width)
         let normalizedHeight = min(1, cropView.frame.height / cropView.contentSize.height)
-        return CGRect(x: normalizedX, y: normalizedY, width: normalizedWidth, height: normalizedHeight)
+        return CGRect(x: 0, y: 0, width: 1, height: 1)
     }
     
     // MARK: - Curtain
