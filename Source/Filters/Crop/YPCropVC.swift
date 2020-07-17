@@ -31,6 +31,24 @@ class YPCropVC: UIViewController {
     private var anchor = CGPoint()
     private var center = CGPoint()
     
+    private func setupPreferences() {
+        var preferences = EasyTipView.Preferences()
+        
+        preferences.drawing.font = .systemFont(ofSize: 14)
+        preferences.drawing.foregroundColor = .black
+        preferences.drawing.backgroundColor = .white
+        preferences.drawing.textAlignment = .center
+        preferences.drawing.arrowHeight = 10
+        preferences.drawing.arrowPosition = .bottom
+        preferences.animating.dismissOnTap = false
+        preferences.positioning.contentVInset = 4
+        
+        EasyTipView.globalPreferences = preferences
+    }
+    lazy var maskTipView: EasyTipView = {
+        return EasyTipView(text: YPConfig.wordings.hint, preferences: EasyTipView.globalPreferences, delegate: nil)
+    }()
+    
     required init(image: UIImage, ratio: Double) {
         v = YPCropView(image: image, ratio: ratio)
         originalImage = image
@@ -44,6 +62,7 @@ class YPCropVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupPreferences()
         setupToolbar()
         setupGestureRecognizers()
     }
@@ -88,7 +107,18 @@ class YPCropVC: UIViewController {
         pressGR.delegate = self
         v.imageView.addGestureRecognizer(pressGR)
     }
-    
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if !UserDefaultsStorage.shared.keyIsAlreadyTapAddCustomImage {
+            let maskView = v.customMaskView
+            maskTipView.show(forView: maskView)
+        }
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        maskTipView.dismiss()
+    }
     @objc
     func cancel() {
         navigationController?.popViewController(animated: true)
@@ -102,7 +132,7 @@ class YPCropVC: UIViewController {
         
         guard let rotatedImage = image.rotate(radians: Float(radians)) else { return }
 //        guard let cgImage = rotatedImage?.toCIImage()?.toCGImage() else { return }
-        
+        UserDefaultsStorage.shared.keyIsAlreadyTapAddCustomImage = true
         let xCrop = v.cropArea.frame.minX - v.imageView.frame.minX
         let yCrop = v.cropArea.frame.minY - v.imageView.frame.minY
         let widthCrop = v.cropArea.frame.width

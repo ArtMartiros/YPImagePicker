@@ -20,3 +20,4 @@
 "YPImagePickerVideoTooLong" = "Selecteer een video korter dan %@ seconden";
 "YPImagePickerVideoTooShort" = "Video moet %@ seconden of langer zijn";
 "YPImagePickerWarningItemsLimit" = "De limiet is %d foto's of video's";
+"YPImagePickerHint" = "Match mask and face";

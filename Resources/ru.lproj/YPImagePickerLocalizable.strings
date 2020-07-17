@@ -20,3 +20,4 @@
 "YPImagePickerVideoTooLong" = "Выберите видео короче %@ секунд";
 "YPImagePickerVideoTooShort" = "Видео должно быть длиннее %@ секунд";
 "YPImagePickerWarningItemsLimit" = "Максимум %d фото или видео";
+"YPImagePickerHint" = "Совместите маску с лицом";

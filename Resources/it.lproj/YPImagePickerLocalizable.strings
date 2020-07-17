@@ -20,3 +20,4 @@
 "YPImagePickerVideoTooLong" = "Carica un video inferiore a %@ secondi.";
 "YPImagePickerVideoTooShort" = "Il video deve durare almeno %@ secondi";
 "YPImagePickerWarningItemsLimit" = "Il limite è di %d foto o video";
+"YPImagePickerHint" = "Match mask and face";
