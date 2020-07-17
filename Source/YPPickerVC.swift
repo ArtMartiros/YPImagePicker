@@ -268,7 +268,7 @@ open class YPPickerVC: YPBottomPager, YPBottomPagerDelegate {
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: YPConfig.wordings.cancel,
                                                            style: .plain,
                                                            target: self,
-                                                           action: #selector(close))
+                                                           action: #selector(close)) 
         switch mode {
         case .library:
             setTitleViewWithTitle(aTitle: libraryVC?.title ?? "")
