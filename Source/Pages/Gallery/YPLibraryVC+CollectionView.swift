@@ -197,6 +197,7 @@ extension YPLibraryVC: UICollectionViewDelegate {
             if let previousCell = collectionView.cellForItem(at: previouslySelectedIndexPath) as? YPLibraryViewCell {
                 previousCell.isSelected = false
             }
+            delegate?.libraryViewDidSelectImage()
         }
     }
     

@@ -328,6 +328,9 @@ open class YPPickerVC: YPBottomPager, YPBottomPagerDelegate {
 }
 
 extension YPPickerVC: YPLibraryViewDelegate {
+    public func libraryViewDidSelectImage() {
+        done()
+    }
     
     public func libraryViewDidTapNext() {
         libraryVC?.isProcessing = true
