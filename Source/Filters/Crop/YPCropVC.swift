@@ -38,9 +38,12 @@ class YPCropVC: UIViewController {
         preferences.drawing.foregroundColor = .black
         preferences.drawing.backgroundColor = .white
         preferences.drawing.textAlignment = .center
+        preferences.drawing.cornerRadius = 8
         preferences.drawing.arrowHeight = 10
         preferences.drawing.arrowPosition = .bottom
+        preferences.positioning.contentHInset = 20
         preferences.animating.dismissOnTap = false
+        preferences.animating.springDamping = 10
         preferences.positioning.contentVInset = 4
         
         EasyTipView.globalPreferences = preferences
